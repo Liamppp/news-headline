@@ -1,12 +1,16 @@
-import sys
-import pygame
+import feedparser
+from datetime import datetime
+from email.utils import parsedate_to_datetime
 
-pygame.init()
+url = "https://www.yna.co.kr/rss/news.xml"
+feed = feedparser.parse(url)
 
-background = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
-while True:
-  for event in pygame.event.get():
-    if event.type == pygame.QUIT:
-      pygame.quit()
-      sys.exit()
+for i, entry in enumerate(feed.entries[:10], 1):
+  published = parsedate_to_datetime(entry.published)
+
+  if published.strftime('%d') != datetime.now().strftime('%d'): continue
+
+  print(f"{i}. [{published.strftime('%H:%M')}] {entry.title}")
+
+# 내가 뉴스 헤드라인 뽑으려고 네이버 API, 공공데이터포털 OpenAPI, 크롤링 이런 뻘짓 다 했는데 결국에 RSS가 정답이었다 ㅋㅋㅋ ㅅㅂ
