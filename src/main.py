@@ -16,29 +16,36 @@ def manipulating():
   input_list = os.listdir(input_dir)
 
   for i, entry in enumerate(feed.entries[:len(input_list)], 0):
-    published = parsedate_to_datetime(entry.published)
+    try:
+      published = parsedate_to_datetime(entry.published)
+      headline = f"{entry.title}"
 
-    if published.strftime('%d') != datetime.now().strftime('%d'): continue
+      if headline[:4] in ban_words: headline = "연합뉴스에서 제공되는 실시간 뉴스입니다."
+      if published.strftime('%d') != datetime.now().strftime('%d'): continue
 
-    font_path = os.path.join(os.getcwd(), 'assets', 'font', 'Pretendard-Bold.ttf')
-    font = ImageFont.truetype(font_path, 70)
+      font_path = os.path.join(os.getcwd(), 'assets', 'font', 'Pretendard-Bold.ttf')
+      font = ImageFont.truetype(font_path, 70)
 
-    image = Image.open(os.path.join(input_dir, input_list[i]))
-    headline = f"{entry.title}"
-    img_size = (1920, 1080)
-    
-    image = image.resize(img_size)
-    draw = ImageDraw.Draw(image)
+      image = Image.open(os.path.join(input_dir, input_list[i]))
+      img_size = (1920, 1080)
+      
+      image = image.resize(img_size)
+      draw = ImageDraw.Draw(image)
 
-    left, top, right, bottom = draw.textbbox((0, 900), headline, font=font)
-    text_width = right - left
+      left, top, right, bottom = draw.textbbox((0, 900), headline, font=font)
+      text_width = right - left
 
-    position = ((img_size[0] - text_width) / 2, 900)
+      position = ((img_size[0] - text_width) / 2, 900)
 
-    draw.rectangle((position[0] -20, top -10, position[0] +text_width +20, bottom +10), fill="#000080")
-    draw.text(xy=position, text=headline, fill="#ffffff", font=font, align='center')
+      draw.rectangle((position[0] -20, top -10, position[0] +text_width +20, bottom +10), fill="#000080")
+      draw.text(xy=position, text=headline, fill="#ffffff", font=font, align='center')
 
-    image.save(os.path.join(output_dir, f"converted[{i}].png"))
+      saveas = f"image_{i}.png"
+
+      image.save(os.path.join(output_dir, saveas))
+      print(f'✅ "{input_list[i]}"를 성공적으로 변환하였습니다. => {saveas}')
+    except:
+      print(f'❌ "{input_list[i]}"를 변환하는 도중 오류가 발생하였습니다.')
 
 manipulating()
 
